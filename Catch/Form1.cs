@@ -71,7 +71,53 @@ namespace Catch
 
         private void gameTime_Tick(object sender, EventArgs e)
         {
+            //move hero
+            if (leftPressed == true && hero.X > 0)
+            {
+                hero.X -= heroSpeed;
+            }
 
+            if (rightPressed == true && hero.X < this.Width - hero.Width)
+            {
+                hero.X += heroSpeed;
+
+            }
+
+            //create ball
+            int randValue = randGen.Next(1, 101);
+
+            if (randValue < 111)
+            {
+                int x = randGen.Next(0, this.Width);
+                Rectangle newBall = new Rectangle(x, 0, ballSize, ballSize);
+                balls.Add(newBall);
+            }
+
+            //move balls
+            for (int i = 0; i < balls.Count; i++)
+            {
+                int y = balls[i].Y + ballSpeed;
+                balls[i] = new Rectangle(balls[i].X, y, ballSize, ballSize);
+            }
+
+            // check for points
+            for (int i = 0; i < balls.Count; i++)
+            {
+                if (hero.IntersectsWith(balls[i]))
+                {
+                    score += 10;
+                    balls.RemoveAt(i);
+                }
+            }
+
+            //remove ball rectangle if off game screen
+            for (int i = 0; i < balls.Count; i++)
+            {
+                if (balls[i].Y > this.Height - groundHeight)
+                {
+                    balls.RemoveAt(i);
+                }
+            }
 
             //redraw the screen
             Refresh();
@@ -91,6 +137,10 @@ namespace Catch
             e.Graphics.FillRectangle(whiteBrush, hero);
 
             //draw balls
+            for (int i = 0; i < balls.Count; i++)
+            {
+                e.Graphics.FillEllipse(greenBrush, balls[i]);
+            }
         }
     }
 }
