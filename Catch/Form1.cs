@@ -18,10 +18,12 @@ namespace Catch
 
         //Ball variables
         int ballSize = 10;
-        int ballSpeed = 8;
+        //int ballSpeed = 8;
 
         //List of balls
         List<Rectangle> balls = new List<Rectangle>();
+        List<int> ballSpeeds = new List<int>();
+        List<string> ballColours = new List<string>();
 
         int score = 0;
         int time = 500;
@@ -31,6 +33,8 @@ namespace Catch
 
         SolidBrush greenBrush = new SolidBrush(Color.Green);
         SolidBrush whiteBrush = new SolidBrush(Color.White);
+        SolidBrush redBrush = new SolidBrush(Color.Red);
+        SolidBrush yellowBrush = new SolidBrush(Color.Yellow);
 
         Random randGen = new Random();
         int randValue = 0;
@@ -86,27 +90,59 @@ namespace Catch
             //create ball
             int randValue = randGen.Next(1, 101);
 
-            if (randValue < 111)
+            if (randValue <  4)
             {
                 int x = randGen.Next(0, this.Width);
                 Rectangle newBall = new Rectangle(x, 0, ballSize, ballSize);
                 balls.Add(newBall);
+                ballSpeeds.Add(randGen.Next(4, 16));
+                ballColours.Add("red");
+            }
+            else if (randValue < 11)
+            {
+                int x = randGen.Next(0, this.Width);
+                Rectangle newBall = new Rectangle(x, 0, ballSize, ballSize);
+                balls.Add(newBall);
+                ballSpeeds.Add(randGen.Next(4, 16));
+                ballColours.Add("yellow");
+            }
+            else if (randValue < 17)
+            {
+                int x = randGen.Next(0, this.Width);
+                Rectangle newBall = new Rectangle(x, 0, ballSize, ballSize);
+                balls.Add(newBall);
+                ballSpeeds.Add(randGen.Next(4, 16));
+                ballColours.Add("green");
             }
 
             //move balls
             for (int i = 0; i < balls.Count; i++)
             {
-                int y = balls[i].Y + ballSpeed;
+                int y = balls[i].Y + ballSpeeds[i];
                 balls[i] = new Rectangle(balls[i].X, y, ballSize, ballSize);
             }
 
-            // check for points
+            // check for collision
             for (int i = 0; i < balls.Count; i++)
             {
                 if (hero.IntersectsWith(balls[i]))
                 {
-                    score += 10;
+                    if (ballColours[i] == "green")
+                    {
+                        score += 10;
+                    }
+                    else if (ballColours[i] == "red")
+                    {
+                        score -= 5;
+                    }
+                    else if (ballColours[i] == "yellow")
+                    {
+                        time += 50;
+                    }
+
                     balls.RemoveAt(i);
+                    ballSpeeds.RemoveAt(i);
+                    ballColours.RemoveAt(i);
                 }
             }
 
@@ -116,7 +152,16 @@ namespace Catch
                 if (balls[i].Y > this.Height - groundHeight)
                 {
                     balls.RemoveAt(i);
+                    ballSpeeds.RemoveAt(i);
+                    ballColours.RemoveAt(i);
                 }
+            }
+
+            time--;
+
+            if (time == 0)
+            {
+                gameTimer.Stop();
             }
 
             //redraw the screen
@@ -139,7 +184,18 @@ namespace Catch
             //draw balls
             for (int i = 0; i < balls.Count; i++)
             {
-                e.Graphics.FillEllipse(greenBrush, balls[i]);
+                if (ballColours[i] == "green")
+                {
+                    e.Graphics.FillEllipse(greenBrush, balls[i]);
+                }
+                else if (ballColours[i] == "red")
+                {
+                    e.Graphics.FillEllipse(redBrush, balls[i]);
+                }
+                else if (ballColours[i] == "yellow")
+                {
+                    e.Graphics.FillEllipse(yellowBrush, balls[i]);
+                }
             }
         }
     }
